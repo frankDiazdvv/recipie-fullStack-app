@@ -7,7 +7,7 @@ const router = express.Router();
 //Get all recipes
 router.get('/', async (req, res) => {
     try{
-        const recipes = await Recipe.find().populate('createdBy', 'username');
+        const recipes = await Recipe.find(req.params.id).populate('createdBy', 'username');
         res.json(recipes);
     }catch(err){
         res.status(400).json({ message: "Something Happened", error: err.message });
