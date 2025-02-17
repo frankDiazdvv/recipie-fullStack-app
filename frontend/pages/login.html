@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/frontend/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <header-and-menu></header-and-menu>
+    <main class="login-main">
+        <h2>USER LOGIN</h2>
+        <form id="login-form">
+            <div class="username">
+                <label for="login-username-input">Username:</label><br>
+                <input type="text" id="login-username-input" placeholder="Username">
+            </div>
+            <div class="password">
+                <label for="login-password-input">Password:</label><br>
+                <input type="text" id="login-password-input" placeholder="Password">
+            </div>
+            <button class="submit-button" id="login-button">Sign In</button>
+            <div class="not-registered">
+                <p>Not Registered? Sign up here <span><a href="../pages/register-user.html">Sign Up</a></span></p>
+            </div>
+        </form>
+    </main>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", async (event) => {
+            let username = document.getElementById('login-username-input').value.trim();
+            let password = document.getElementById('login-password-input').value.trim();
+            event.preventDefault();
+
+            if (username && password){
+                const userData = { username, password };
+
+                try {
+                    const response = await fetch("http://localhost:5050/api/auth/login", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(userData)
+                    });
+
+                    const data = await response.json();
+
+                    if(response.ok && data.token){
+                        localStorage.setItem("token", data.token); //store jwt token locally
+                        localStorage.setItem("name", data.name); //store user name locally
+
+
+                        window.alert(`Welcome Back ${data.name}!`);
+                        window.location.href = '/frontend/pages/index.html';
+                    } else {
+                        window.alert(`Could Not Find That Data.  Error: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error("Error Loging In: ", error);
+                    window.alert("Something went wrong gathering your info");
+                }
+
+            } else {
+                window.alert("All Inputs Required!");
+            }
+        });
+    </script>
+    <script src="/frontend/js/script.js"></script>
+</body>
+</html>

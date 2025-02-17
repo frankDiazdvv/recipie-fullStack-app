@@ -25,8 +25,8 @@ app.get('/', (req,res) => {
     res.send('Backend Running...');
 });
 
-app.use('/auth', authRoutes);
-app.use('/recipes', recipeRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/recipes', recipeRoutes);
 
 //Start Server
 const PORT = process.env.PORT || 5000;

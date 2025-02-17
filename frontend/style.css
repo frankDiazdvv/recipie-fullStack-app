@@ -1,0 +1,350 @@
+* {
+    /* font-family: -apple-system, "Inter", sans-serif;     */
+    font-family: 'Quicksand', sans-serif;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    display: grid;
+    grid-template-rows: 3.5rem auto;
+    grid-template-columns: auto;
+    grid-template-areas: 
+    'header'
+    'main';
+    height: 100vh;
+}
+
+/* HEADER */
+
+header {
+    grid-area: header;
+    width: 100vw;
+    height: 3.5rem;
+    position: fixed;
+    background-color: #2a632bcd;
+    color: white;
+}
+
+header .header-nav {
+    display: flex;
+    height: 100%;
+    justify-content: left;
+    align-items: center;
+    padding-left: .5rem;
+}
+
+.top-left {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    height: 3rem;
+}
+
+.top-left h1{
+    font-weight: 460;
+}
+
+.side-menu-icon {
+    width: 2rem;
+    border: none;
+    color: white;
+    background-color: transparent;
+    font-size: 1.3rem;
+}
+
+.side-menu-icon:hover {
+    cursor: pointer;
+    background-color: #c5d2c516;
+    border-radius: 10%;
+}
+
+/* SIDE MENU */
+
+.side-menu {
+    position: absolute;
+    top: 3.5rem;
+    height: 100vh;
+    width: 10rem;
+    background-color: #164317cb;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease-in-out;
+}
+
+.side-menu .menu-elements {
+    height: 100%;
+}
+
+.side-menu ul {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.side-menu ul li {
+    text-align: left;
+    padding-left: 1rem;
+    padding: .5rem 0 .5rem 1rem;
+    margin: 0 .4rem 0 .2rem
+}
+
+.side-menu ul li a {
+    display: block;
+    text-decoration: none;
+    color: white;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.side-menu ul li:hover {
+    background-color: #164317cb;
+    border-radius: 10px;
+}
+
+.open{
+    transform: translateX(0);
+}
+
+/* MAIN */
+
+main {
+    grid-area: main;
+}
+
+.default-no-content {
+    text-align: center;
+}
+
+/* CREATE RECIPE */
+.create-recipe-main {
+    display: grid;
+    grid-template-rows: 15vh auto;
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+    'page-title'
+    'form'; 
+    justify-items: center;  
+}
+
+main h2 {
+    grid-area: page-title;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    border-bottom: 1px solid rgb(213, 213, 213);
+    width: 100vw;
+}
+
+/* CREATE RECIPE FORM */
+
+.create-recipe-main form {
+    grid-area: form;
+    display: flex;
+    flex-direction: column;
+    margin-top: 2rem;
+    gap: 2rem;
+    width: 35vw;
+    min-width: 25rem;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+form input {
+    height: 2rem;
+    padding-left: .2rem;
+    border-radius: 10px;
+    border: none;
+    background-color: #eaeaeacb;
+    color: #353635;
+}
+
+.title-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: .5rem;
+}
+
+.title-container input {
+    width: 100%;
+    max-width: 30rem;
+}
+
+.ingredient-container {
+    max-width: 100%;
+}
+
+.ingredient-container .ingredients-input {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: .5rem;
+}
+
+.ingredients-input #ingredient-amount {
+    max-width: 8rem;
+}
+
+.ingredients-input #ingredient-name {
+    width: 100%;
+}
+
+.directions-container {
+    max-width: 100%;
+}
+
+.directions-container .directions-input {
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.directions-input input {
+    width: 100%;
+}
+
+.create-recipe-main form #img-upload {
+    display: flex;
+    background-color: transparent;
+    padding-top: 10px;
+    padding-left: 0;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+form .add-button {
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: none;
+    background-color: transparent;
+    color: rgb(0, 110, 0);
+}
+
+form .add-button:hover {
+    border-radius: .3rem;
+    color: rgb(0, 214, 0);
+    cursor: pointer;
+}
+
+main form .submit-button {
+    align-self: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    width: 40%;
+    height: 2.5rem;
+    background-color: rgba(68, 152, 68, 0.841);
+    color: white;
+    border-radius: 10px;
+}
+
+main form .submit-button:hover {
+    background-color: rgba(103, 161, 103, 0.841);
+    cursor: pointer;
+}
+
+/* TAGS */
+
+.tag-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.input-tag {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: .3rem;
+    list-style: none;
+    margin: .3rem;
+    padding: .3rem;
+    border: 2px solid rgb(0, 72, 0);
+    border-radius: 20px;
+    background-color: green;
+    color: white;
+    font-weight: 300;
+    font-size: 1rem;
+    font-style: oblique;
+    cursor: default;
+}
+
+.input-tag button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    padding: .1rem;
+}
+
+.input-tag button:hover {
+    background-color: rgba(7, 165, 7, 0.775);
+    border-radius: 20px;
+}
+
+.directions-tags {
+    flex-direction: column;
+    counter-reset: list-counter;
+    margin-top: .3rem;
+    width: 100%;
+}
+
+.directions-tags .input-tag {
+    counter-increment: list-counter;
+    position: relative;
+    width: fit-content;
+}
+
+.directions-tags .input-tag::before {
+    content: counter(list-counter) ".";
+    left: 0;
+    font-weight: bold;
+}
+
+/* USER LOGIN PAGE */
+
+.login-main {
+    display: grid;
+    grid-template-rows: 15vh auto;
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+    'page-title'
+    'form';
+    justify-items: center;
+    align-items: center;
+}
+
+.login-main form {
+    grid-area: form;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 30vw;
+    min-width: 25rem;
+    align-items: center;
+    padding: 1.5rem 1rem 1rem 1rem;
+    border-radius: 1rem;
+    box-shadow: 5px 5px 15px 5px rgb(222, 221, 221);
+    
+}
+
+.login-main form .username, 
+.login-main form .password,
+.login-main form .name {
+    font-size: 1.2rem;
+    width: 50%;
+}
+
+.login-main form input {
+    height: 2.2rem;
+    width: 100%;
+    margin-top: .3rem;
+}
+
+
+

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/frontend/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <header-and-menu></header-and-menu>
+    <main class="login-main">
+        <h2>REGISTER USER</h2>
+        <form id="register-form">
+            <div class="name">
+                <label for="user-name">Name:</label>
+                <input type="text" id="user-name" placeholder="Name">
+            </div>
+            <div class="username">
+                <label for="register-username-input">Username:</label><br>
+                <input type="text" id="register-username-input" placeholder="Username">
+            </div>
+            <div class="password">
+                <label for="-register-password-input">Password:</label><br>
+                <input type="text" id="register-password-input" placeholder="Password">
+            </div>
+            <button class="submit-button" id="register-button">Sign Up</button>
+            <div class="not-registered">
+                <p>Already Registered? Sign in here <span><a href="../pages/login.html">Sign In</a></span></p>
+            </div>
+        </form>
+    </main>
+    <script>
+        document.getElementById("register-form").addEventListener("submit", async (event) => {
+
+            let name = document.getElementById("user-name").value.trim();
+            let username = document.getElementById("register-username-input").value.trim();
+            let password = document.getElementById("register-password-input").value.trim();
+            event.preventDefault();
+
+            if(name && username && password){
+
+                const userData = { name, username, password };
+
+                try {
+                    const response = await fetch("http://localhost:5050/api/auth/signup", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData)
+                    });
+
+                    const data = await response.json();
+
+                    if(response.ok){
+                        alert("You registered Successfully! \uD83C\uDF89");
+                        window.location.href = '/frontend/pages/login.html';
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error("Error Registering: ", error);
+                    alert("Error Registering. Try Again!"); 
+                }
+            } else {
+                window.alert("All Fields must be used!");
+            }
+        });
+    </script>
+    <script src="/frontend/js/script.js"></script>
+</body>
+</html>
