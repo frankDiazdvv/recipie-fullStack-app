@@ -40,45 +40,143 @@
             <button class="submit-button" id="create-recipe-button">Create Recipe</button>
         </form>
     </main>
-    <script>
-        document.getElementById("create-recipe-form").addEventListener("submit", async (event) => {
-            event.preventDefault();
+    <script type="module">
 
-            let title = document.getElementById("title").value.trim();
-            let ingredientInput = JSON.parse(localStorage.getItem("ingredientList")) || [];
-            let directionsInput = JSON.parse(localStorage.getItem("directionsList")) || [];
-            let token = localStorage.getItem('token');
+        document.addEventListener("DOMContentLoaded", () => {
+            let ingredTags = document.getElementById("ingredient-tags");
+            let directionTags = document.getElementById("directions-tags"); // tags div
 
-            if(!token){
-                window.alert("You need to be logged in to create a recipe");
-                window.location.href = '/frontend/pages/login.html';
-            } else {
-                if(title && ingredientInput && directionsInput){ 
-                    const userData = { title, ingredientInput, directionsInput };
+            //ADD INGREDIENTS TAG
+            document.getElementById("add-ingredient").addEventListener("click", (event) => {
+                event.preventDefault();
 
-                    let response = await fetch('http://localhost:5050/api/recipes/', {
-                        method: 'POST',
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify(userData)
-                    });
+                const ingredAmount = document.getElementById("ingredient-amount")?.value.trim();
+                const ingredName = document.getElementById("ingredient-name")?.value.trim();
 
-                    const data = response.json();
+                if(ingredAmount && ingredName){
+                    //Handle and update UI
+                    const listItem = document.createElement("li");
+                    listItem.classList.add("input-tag");
+                    listItem.dataset.amount = ingredAmount;
+                    listItem.dataset.name = ingredName;
+                    listItem.textContent = `${ingredAmount} ${ingredName}`;
 
-                    if(response.ok){
-                        window.alert("Recipe Created! U+1F60B");
-                        window.location.href = '/frontend/pages/index.html';
-                    } else {
-                        window.alert(`Something went wrong. Error: ${data.message}`);
-                    }
+                    const deleteTag = document.createElement("button");
+                    deleteTag.textContent = "x";
+                    deleteTag.addEventListener("click", () => ingredTags.removeChild(listItem));
+                    listItem.appendChild(deleteTag);
+                    ingredTags.appendChild(listItem);
+
+
+                    document.getElementById("ingredient-amount").value = "";
+                    document.getElementById("ingredient-name").value = ""; 
 
                 } else {
-                    window.alert("Please input all required data!");
+                    window.alert("Both fields should be filled!");
+                    event.preventDefault();
                 }
-            }
+            });
+            //ADD DIRECTIONS INPUT TAG
+            document.getElementById("add-direction").addEventListener("click", (event) => {
+                event.preventDefault();
+                let direction = document.getElementById("directions").value.trim(); // input
+
+                if (direction) {
+                    //Handle UI for directions
+                    const direcTag = document.createElement("li");
+                    direcTag.classList.add("input-tag");
+                    direcTag.textContent = direction;
+
+                    const deleteTag = document.createElement("button");
+                    deleteTag.textContent = "x";
+                    deleteTag.addEventListener("click", () => directionTags.removeChild(direcTag));
+                    direcTag.appendChild(deleteTag);
+                    directionTags.appendChild(direcTag);
+
+                    document.getElementById("directions").value = "";
+                } else {
+                    window.alert("Directions Required!");
+                    event.preventDefault();
+                }
+            });
+
+            //FORM SUBMISSION
+            document.getElementById("create-recipe-form").addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const title = document.getElementById("title").value.trim();
+                const imageFile = document.getElementById('img-upload').files[0];
+                const token = localStorage.getItem('token');
+
+                if(!token){
+                    window.alert("You need to be logged in to create a recipe");
+                    window.location.href = '/frontend/pages/login.html';
+                    return;
+                }
+
+                //Collect Ingredients from UI Form
+                const ingredients = [];
+                const ingredientItems = ingredTags.querySelectorAll('.input-tag');
+                ingredientItems.forEach(item => {
+                    const amount = item.dataset.amount;
+                    const name = item.dataset.name;
+                    if(amount && name){
+                        ingredients.push({amount, name});
+                    }
+                });
+
+                //Collect Directions from UI Form
+                const instructions = [];
+                const directionItems = directionTags.querySelectorAll('.input-tag');
+                directionItems.forEach(item => {
+                    const direction = item.textContent.replace('x', '').trim();
+                    if(direction){
+                        instructions.push(direction);
+                    }
+                });
+
+                if (!title || ingredients.length === 0 || instructions.length === 0) {
+                    window.alert("Please input all required data!");
+                    return;
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('ingredients', JSON.stringify(ingredients)); 
+                    formData.append('instructions', JSON.stringify(instructions));
+                    if (imageFile) formData.append('image', imageFile);
+
+
+                    let response = await fetch('http://localhost:5050/api/recipes/', {
+                    method: 'POST',
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if(response.ok){
+                        window.alert("Recipe Created! 😋");
+                        ingredTags.innerHTML = "";
+                        directionTags.innerHTML = "";
+                        window.location.href = '/frontend/pages/index.html';
+                    } else {
+                        window.alert(data.message || `Something Went Wrong!`);
+                        if(response.status === 401){
+                            window.location.href = "/frontend/pages/login.html";
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error during recipe creation:', error);
+                    window.alert(`Error creating recipe: ${error.message}`);
+                }
+            
+            });
         });
+
     </script>
     <script src="/frontend/js/script.js"></script>
 </body>

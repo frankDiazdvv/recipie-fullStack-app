@@ -54,7 +54,7 @@
                         window.alert(`Welcome Back ${data.name}!`);
                         window.location.href = '/frontend/pages/index.html';
                     } else {
-                        window.alert(`Could Not Find That Data.  Error: ${data.message}`);
+                        window.alert(`Incorrect username or password. Try Again.`);
                     }
                 } catch (error) {
                     console.error("Error Loging In: ", error);

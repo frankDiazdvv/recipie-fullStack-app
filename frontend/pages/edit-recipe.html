@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=s, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
+    <link rel="stylesheet" href="/frontend/style.css">
+    <title>Recipe App</title>
+</head>
+<body>
+    <header-and-menu></header-and-menu>
+    <main class="create-recipe-main">
+        <h2>EDIT YOUR RECIPE</h2>
+        <form id="edit-recipe-form">
+            <div class="title-container">
+                <label for="title">Title:</label>
+                <input type="text" id="title" placeholder="Title of Recipe"><br>    
+            </div>
+            <div class="ingredient-container" id="ingredient-container">
+                <label for="ingredient-amount">Ingredients:</label><br>
+                <div class="ingredients-input">
+                    <input type="text" class="ingredient-amount" id="ingredient-amount" placeholder="Serving/Amount">
+                    <input type="text" class="ingredient-name" id="ingredient-name" placeholder="Ingredient">
+                    <button class="add-button add-ingredient" id="add-edited-ingredient">+</button>    
+                </div>
+                <!-- <div class="ingredients-input">
+                    <input type="text" id="ingredient-amount" placeholder="Serving/Amount">
+                    <input type="text" id="ingredient-name" placeholder="Ingredient">
+                </div> -->
+            </div>
+            <div class="directions-container" id="directions-container">
+                <label for="directions">Directions:</label><br>
+                <div class="directions-input">
+                    <input type="text" class="directions" id="directions" placeholder="Direction Here">
+                    <button class="add-button add-direction" id="add-edited-direction">+</button>    
+                </div>
+            </div>
+            <div class="img-container">
+                <label>Cover Image: </label><br>
+                <div class="button-section">
+                    <!-- <button class="update-image-btn" id="update-image-btn">Update Image</button> -->
+                    <input type="file" id="update-image-btn" class="update-image-btn" accept="image/*">
+                    <!-- <button class="delete-image-btn" id="delete-image-btn">Delete Image</button> -->
+                </div>
+              
+            </div>
+            <button class="submit-button" id="update-recipe-button">Save Changes</button>
+        </form>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const ingredientContainer = document.getElementById('ingredient-container');
+            const directionsContainer = document.getElementById('directions-container');
+            const addIngredientBtn = document.getElementById('add-edited-ingredient');
+            const addDirectionBtn = document.getElementById('add-edited-direction');
+            let imageDeleted = false;
+            
+            //get recipe _id from url
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipeId = urlParams.get('_id');
+
+            let recipe = {};
+            if(recipeId){
+                //Fetch recipe data
+                const response = await fetch(`http://localhost:5050/api/recipes/${recipeId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                recipe = await response.json();
+
+                //IF RESPONSE OK, FILL FORM WITH CURRENT DATA
+                if(response.ok){
+
+                    //Fill out Title
+                    document.getElementById('title').value = recipe.title || "Title not found";
+
+                    //Fill out INGREDIENTS
+                    recipe.ingredients.forEach((ingredient, index) => {
+                        addIngredientField(ingredient.amount, ingredient.name, index);
+                    });
+
+                    //Fill out DIRECTIONS
+                    recipe.instructions.forEach((direction, index) => {
+                        addDirectionField(direction, index);
+                    });
+
+            
+                    //Handle IMAGE
+                    const editImageContainer = document.querySelector('.img-container');
+                    const editRecipeImg = document.createElement('img')
+                    editRecipeImg.classList.add('edit-image');
+                    editRecipeImg.src = recipe.imageUrl || '/frontend/content/no-image.png';
+                    editRecipeImg.alt = recipe.title || 'No Image';
+                    editImageContainer.appendChild(editRecipeImg);
+
+                    if(recipe.imageUrl){
+                        const buttonSection = document.querySelector('.button-section');
+                        const deleteImgBtn = document.createElement('button');
+                        deleteImgBtn.classList.add('delete-image-btn');
+                        deleteImgBtn.innerText = 'Delete Image';
+                        buttonSection.appendChild(deleteImgBtn);
+                    }
+
+                    //Delete IMG button 
+                    document.querySelector('.delete-image-btn').addEventListener('click', () => {
+                        if(window.confirm("Deleting Current Image?")){
+                            editRecipeImg.src = '/frontend/content/no-image.png';  
+                            imageDeleted = true; //flag for deletion
+                        }               
+                    });
+                }
+
+                //Funtion to Add Ingredient div with delete button
+                function addIngredientField(amount = '', name = '', index = Date.now()){
+                    const ingredDiv = document.createElement('div');
+                    ingredDiv.classList.add('ingredients-input');
+                    ingredDiv.innerHTML = `
+                        <input type="text" class="ingredient-amount" id="amount-${index}" value="${amount}" placeholder="Serving/Amount">
+                        <input type="text" class="ingredient-name" id="name-${index}" value="${name}" placeholder="Ingredient">
+                        <button type="button" class="remove-button" data-index="${index}">-</button>
+                    `;
+                    ingredientContainer.appendChild(ingredDiv);
+
+                    ingredDiv.querySelector('.remove-button').addEventListener('click', () => ingredDiv.remove());
+                }
+                //Funtion to Add Directions div with delete button
+                function addDirectionField(direction = '', index = Date.now()){
+                    const directionDiv = document.createElement('div');
+                    directionDiv.classList.add('instructions-input');
+                    directionDiv.innerHTML = `
+                        <input type="text" class="directions" id="directions-${index}" value="${direction}" placeholder="Direction Here">
+                        <button type="button" class="remove-button" data-index="${index}">-</button>
+
+                    `;
+                    directionsContainer.appendChild(directionDiv);
+
+                    directionDiv.querySelector('.remove-button').addEventListener('click', () => directionDiv.remove());
+                }
+
+                // ADD-INGREDIENT BUTTON
+                addIngredientBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+
+                    const amount = document.getElementById('ingredient-amount')?.value.trim();
+                    const name = document.getElementById('ingredient-name')?.value.trim();
+
+                    if(amount && name){
+                        addIngredientField(amount, name);                
+
+                        document.getElementById('ingredient-amount').value = '';
+                        document.getElementById('ingredient-name').value = '';
+                    } else{
+                        window.alert("Both parameters required!");
+                    }
+                });
+               
+                //ADD-DIRECTIONS BUTTON
+                addDirectionBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const direction = document.getElementById('directions').value.trim();
+
+                    if(direction){
+                        addDirectionField(direction);
+                        document.getElementById('directions').value = '';
+                    }
+                });
+
+                //UPDATE RECIPE WITH NEW UPDATED VALUES
+                document.getElementById('edit-recipe-form').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    
+                    //Get Title
+                    const title = document.getElementById("title").value.trim();
+
+                    //ADD NEW INGREDIENTS TO UPDATED RECIPE
+                    const ingredients = [];
+                    const ingredientDivs = ingredientContainer.querySelectorAll('.ingredients-input');
+                    ingredientDivs.forEach(div => {
+                        const amount = div.querySelector('.ingredient-amount').value.trim();
+                        const name = div.querySelector('.ingredient-name').value.trim();
+                        if(amount && name){
+                            ingredients.push({ amount, name });
+                        }
+                    });
+                    //ADD NEW DIRECTIONS TO UPDATED RECIPE
+                    const directions = [];
+                    const directionDivs = directionsContainer.querySelectorAll('.instructions-input');
+                    directionDivs.forEach(div => {
+                        const directionInput = div.querySelector('.directions').value.trim();
+                        if(directionInput){
+                            directions.push(directionInput);
+                        }
+                    });
+
+                    //GET UPDATED IMAGE
+                    const updatedImage = document.getElementById('update-image-btn').files[0];
+
+                    //formData for PUT
+                    const formData = new FormData();
+                        formData.append('title', title);
+                        formData.append('ingredients', JSON.stringify(ingredients));
+                        formData.append('instructions', JSON.stringify(directions));
+                        if (updatedImage) formData.append('image', updatedImage);
+                        if (imageDeleted) formData.append('removeImage', 'true');
+
+
+                    //SEND PUT REQUEST
+                    try {
+                        
+                        let response = await fetch(`http://localhost:5050/api/recipes/${recipeId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            },
+                            body: formData
+                        });
+
+                        const data = await response.json();
+                                            
+                        if(response.ok){
+                            window.alert("Recipe Updated Succesfully");
+                            window.location.href = '/frontend/pages/index.html';
+                        } else {
+                            window.alert(data.message || "Something Happened Updating the Recipe");
+                        }
+                    } catch (error) {
+                        console.error("Error saving recipe", error);
+                    }
+
+                });
+
+                /*WORK ON THE FOLLOWING:
+                    - Update works but does not when there is no image initially. 
+                    - Custom Upload Button(Last Grok convo)
+                    - Issue with form submitting     clicking delete button
+                    (I assume it is the positioning of the eventlistener(submit))
+                    maybe it needs to be moved to the left a tab.
+                    - Show a preview of the image after a new image is selected for updating
+
+                AFTER THAT FIX THESE:
+                    - Create-recipe page input layout is not showing properly
+                    - Fit Image in recipe details page properly
+                    - Directions(in create and edit pages) cannot be added with enter
+                    - Change stock no-image for index.html thumbnails and recipe-details 
+                */
+            }
+        });
+    </script>
+    <script src="/frontend/js/script.js"></script>
+</body>
+</html>

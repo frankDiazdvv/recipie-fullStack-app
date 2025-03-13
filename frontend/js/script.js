@@ -28,88 +28,130 @@ class SpecialHeadMenu extends HTMLElement {
 } //END OF CLASS
 // Define custom element
 customElements.define('header-and-menu', SpecialHeadMenu);
+/*document.addEventListener("DOMContentLoaded", () => {
+            const ingredTags = document.getElementById("ingredient-tags");
+            const directionTags = document.getElementById("directions-tags");
 
-document.addEventListener("DOMContentLoaded", () => {
-    //INGREDIENTS
-    document.getElementById("add-ingredient").addEventListener("click", (event) => {
-        let ingredAmount = document.getElementById("ingredient-amount").value.trim();
-        let ingredName = document.getElementById("ingredient-name").value.trim();
-        let ingredTags = document.getElementById("ingredient-tags");
+            // ADD INGREDIENTS TAG
+            document.getElementById("add-ingredient").addEventListener("click", (event) => {
+                event.preventDefault();
+                const ingredAmount = document.getElementById("ingredient-amount")?.value.trim();
+                const ingredName = document.getElementById("ingredient-name")?.value.trim();
 
-        if(ingredAmount && ingredName){
-            event.preventDefault();
+                if (ingredAmount && ingredName) {
+                    // Handle and update UI
+                    const listItem = document.createElement("li");
+                    listItem.classList.add("input-tag");
+                    listItem.textContent = `${ingredAmount} ${ingredName}`;
 
-            let ingredientList = JSON.parse(localStorage.getItem("ingredientList")) || []; //gets or creates new list
-            let ingredientEntry = `${ingredAmount} ${ingredName}`; //stores a string from the input
+                    const deleteTag = document.createElement("button");
+                    deleteTag.textContent = "x";
+                    deleteTag.addEventListener("click", () => ingredTags.removeChild(listItem));
+                    listItem.appendChild(deleteTag);
+                    ingredTags.appendChild(listItem);
 
-            ingredientList.push(ingredientEntry); //Add input to array
-
-            localStorage.setItem("ingredientList", JSON.stringify(ingredientList)); //make array public in localStorage
-
-            //Hnadle and update UI
-            let listItem = document.createElement("li");
-            listItem.classList.add("input-tag");
-            listItem.textContent = ingredientEntry;
-
-            let deleteTag = document.createElement("button");
-            deleteTag.textContent = "x";
-            deleteTag.addEventListener("click", () => {
-                ingredTags.removeChild(listItem);
-
-                //Remove from localStorage
-                ingredientList = ingredientList.filter(item => item !== ingredientEntry);
-                localStorage.setItem("ingredientList", JSON.stringify(ingredientList));
+                    document.getElementById("ingredient-amount").value = "";
+                    document.getElementById("ingredient-name").value = "";
+                } else {
+                    window.alert("Both fields should be filled!");
+                }
             });
-            listItem.appendChild(deleteTag);
-            ingredTags.appendChild(listItem);
 
+            // ADD DIRECTIONS INPUT TAG
+            document.getElementById("add-direction").addEventListener("click", (event) => {
+                event.preventDefault();
+                const direction = document.getElementById("directions").value.trim();
 
-            document.getElementById("ingredient-amount").value = "";
-            document.getElementById("ingredient-name").value = ""; 
+                if (direction) {
+                    // Handle UI for directions
+                    const direcTag = document.createElement("li");
+                    direcTag.classList.add("input-tag");
+                    direcTag.textContent = direction;
 
-        } else {
-            window.alert("Both fields should be filled!");
-            event.preventDefault();
-        }
-    });
-    // DIRECTIONS INPUT
-    document.getElementById("add-direction").addEventListener("click", (event) => {
-        let direction = document.getElementById("directions").value.trim(); // input
-        let directionTags = document.getElementById("directions-tags"); // tags div
+                    const deleteTag = document.createElement("button");
+                    deleteTag.textContent = "x";
+                    deleteTag.addEventListener("click", () => directionTags.removeChild(direcTag));
+                    direcTag.appendChild(deleteTag);
+                    directionTags.appendChild(direcTag);
 
-        if (direction) {
-            event.preventDefault();
-
-            let directionsList = JSON.parse(localStorage.getItem("directionsList")) || []; //get directionsList or create if not-existent
-            let directionsEntry = `${direction}`; //get input
-
-            directionsList.push(directionsEntry); //add input to array
-
-            localStorage.setItem("directionsList", JSON.stringify(directionsList)); //make directions list public
-
-            //Handle UI for directions
-            let direcTag = document.createElement("li");
-            direcTag.classList.add("input-tag");
-            direcTag.textContent = directionsEntry;
-
-            let deleteTag = document.createElement("button");
-            deleteTag.textContent = "x";
-            deleteTag.addEventListener("click", () => {
-                directionTags.removeChild(direcTag);
-
-                //Remove from localStorage
-                directionsList = directionsList.filter(item => item !== directionsEntry);
-                localStorage.setItem("directionsList", JSON.stringify(directionsList));
+                    document.getElementById("directions").value = "";
+                } else {
+                    window.alert("Directions Required!");
+                }
             });
-            direcTag.appendChild(deleteTag);
-            directionTags.appendChild(direcTag);
 
+            // FORM SUBMISSION
+            document.getElementById("create-recipe-form").addEventListener("submit", async (event) => {
+                event.preventDefault();
 
-            document.getElementById("directions").value = "";
-        } else {
-            window.alert("Directions Required!");
-            event.preventDefault();
-        }
-    });
-});
+                const title = document.getElementById("title").value.trim();
+                const imageFile = document.getElementById('img-upload').files[0];
+                const token = localStorage.getItem('token');
 
+                if (!token) {
+                    window.alert("You need to be logged in to create a recipe");
+                    window.location.href = '/frontend/pages/login.html';
+                    return;
+                }
+
+                // Collect ingredients from UI
+                const ingredients = [];
+                const ingredientItems = ingredTags.querySelectorAll('.input-tag');
+                ingredientItems.forEach(item => {
+                    const text = item.textContent.replace('x', '').trim();
+                    const [amount, ...nameParts] = text.split(' ');
+                    const name = nameParts.join(' ');
+                    if (amount && name) {
+                        ingredients.push({ amount, name });
+                    }
+                });
+
+                // Collect directions from UI
+                const directions = [];
+                const directionItems = directionTags.querySelectorAll('.input-tag');
+                directionItems.forEach(item => {
+                    const direction = item.textContent.replace('x', '').trim();
+                    if (direction) {
+                        directions.push(direction);
+                    }
+                });
+
+                if (!title || ingredients.length === 0 || directions.length === 0) {
+                    window.alert("Please input all required data!");
+                    return;
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('ingredients', JSON.stringify(ingredients)); // Stringify for FormData
+                    formData.append('instructions', JSON.stringify(directions)); // Stringify for FormData
+                    if (imageFile) formData.append('image', imageFile);
+
+                    const response = await fetch('http://localhost:5050/api/recipes/', {
+                        method: 'POST',
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        window.alert("Recipe Created! 😋");
+                        ingredTags.innerHTML = ""; // Clear UI
+                        directionTags.innerHTML = ""; // Clear UI
+                        window.location.href = '/frontend/pages/index.html';
+                    } else {
+                        window.alert(data.message || "Something Went Wrong!");
+                        if (response.status === 401) {
+                            window.location.href = "/frontend/pages/login.html";
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error during recipe creation:', error);
+                    window.alert(`Error creating recipe: ${error.message}`);
+                }
+            });
+        }); */

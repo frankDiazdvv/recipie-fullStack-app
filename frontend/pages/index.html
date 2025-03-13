@@ -11,11 +11,86 @@
     <header-and-menu></header-and-menu>
     <main>
         <p class="default-no-content">
-            You have no recipes listed here. 
-            Create your recipes here <a href="../pages/create-recipe.html"> Create Recipe</a>
-            </p>
+            <!-- You have no recipes listed here. 
+            Create your recipes here <a href="../pages/create-recipe.html"> Create Recipe</a> -->
+        </p>
+        <div class="recipe-containers" id="recipe-containers">
+        <!-- <div class="recipe-thumbnail">
+                <img src="/frontend/content/steak.jpg" alt="recipe-img-thumbnail">
+                <p>Steak and Fries</p>
+            </div> -->
+        </div>
+        
     </main>
-    
+    <script>
+        //Creating Thumbnail
+        document.addEventListener('DOMContentLoaded', async () => {
+            let thumbnailContainer = document.getElementById('recipe-containers');
+            let token = localStorage.getItem('token');
+
+            if(!token){
+                const defaultEmpty = document.createElement('p');
+                defaultEmpty.classList.add('default-no-content');
+                defaultEmpty.textContent = "Please log in to view recipes";
+                thumbnailContainer.appendChild(defaultEmpty);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5050/api/recipes/', {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    window.alert(`Failed to fetch recipes: ${errorText}`);
+                }
+
+                const recipes = await response.json();
+                console.log("Fetched Recipes", recipes);
+
+                if (recipes.length > 0) {
+                    recipes.forEach(recipe => {
+                        const recipeContainer = document.createElement('div');
+                        recipeContainer.classList.add('recipe-thumbnail');
+
+                        const thumbImage = document.createElement('img');
+                        thumbImage.src = recipe.imageUrl || '/frontend/content/steak.jpg';
+                        thumbImage.alt = recipe.title || "Thumbnail Image";
+
+                        const thumbTitle = document.createElement('p');
+                        thumbTitle.textContent = recipe.title || "Somehow Untitled";
+
+                        recipeContainer.appendChild(thumbImage);
+                        recipeContainer.appendChild(thumbTitle);
+                        thumbnailContainer.appendChild(recipeContainer);
+
+                        //Redirect to recipe-details.html after click on div
+                        recipeContainer.addEventListener('click', () => {
+                            window.location.href = `/frontend/pages/recipe-details.html?_id=${recipe._id}`;
+                        });
+                    });
+                } else {
+                    const defaultEmpty = document.createElement('p');
+                    defaultEmpty.classList.add('default-no-content');
+                    defaultEmpty.textContent = "Nothing to show here, go and create a New Recipe";
+                    thumbnailContainer.appendChild(defaultEmpty);
+                }
+            } catch (error) {
+                console.error("Error fetching recipes:", error);
+                const defaultEmpty = document.createElement('p');
+                defaultEmpty.classList.add('default-no-content');
+                defaultEmpty.textContent = "Error loading recipes. Redirecting...";
+                thumbnailContainer.appendChild(defaultEmpty);
+                window.location.href = '/frontend/pages/login.html';
+            }
+        });
+        
+    </script>
     <script src="/frontend/js/script.js"></script>
 </body>
 </html>

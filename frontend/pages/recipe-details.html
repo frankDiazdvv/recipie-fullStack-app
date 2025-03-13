@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">    
+    <link rel="stylesheet" href="/frontend/style.css">
+    <title>Recipe Details</title>
+</head>
+<body>
+    <header-and-menu></header-and-menu>
+    <main id="recipe-details-main">
+        <div class="image-container" id="image-container">
+            <!-- <img src="/frontend/content/steak.jpg" alt=""> -->
+        </div>
+        <div class="title-container" id="title-container">
+            <!-- <h1>Steak and Fries</h1> -->
+        </div>
+        <div class="ingredients-container" id="ingredients-container">
+        <!-- <ul>
+                <li>8oz Steak</li>
+                <li>1tsp Salt</li>
+                <li>1 Big Potato</li>
+                <li>2tbsp Beef Tallow</li>
+                <li>1tsp garlic powder</li>
+                <li>1tsp onion powder</li>
+                <li>1.5tbsp butter or avocado oil</li>
+                <li>1tsp Pepper</li>
+            </ul> -->
+        </div>
+        <div class="instructions-container" id="instructions-container">
+            <!-- <ol>
+                <li>Pat dry the steak and remove any extra fat</li>
+                <li>Wash potato and cut into fries shape</li>
+                <li>Season well both steak and fries</li>
+                <li>Preheat airfryer to 400F</li>
+                <li>Coat the fries in beef tallow or butter and place them to cook after preheat is done</li>
+                <li>Preheat a cast iron or stainless steel pan in high</li>
+                <li>After preheat add the stak by the fatty side to let fat melt, you can add some beef tallow before too!</li>
+                <li>Sear steak until having a good crust and cook then to your liking</li>
+                <li>Take out fries and steak</li>
+            </ol> -->
+        </div>
+        <div class="edit-delete-container">
+            <button id="edit-button">Edit</button>
+            <button id="delete-button">Delete</button>
+        </div>
+    </main>
+    <script>
+        //GET recipes by id
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = localStorage.getItem("token");
+            const recipeMain = document.getElementById("recipe-details-main");
+            const imgContainer = document.getElementById("image-container");
+            const titleContainer = document.getElementById("title-container");
+            const ingredientsContainer = document.getElementById("ingredients-container");
+            const instructionsContainer = document.getElementById("instructions-container");
+
+            if(!token){
+                window.alert("Something Happened!");
+                window.location.href = "/frontend/pages/index.html";
+            }
+
+             // Get recipe ID from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipeId = urlParams.get('_id');
+
+            if (!recipeId) {
+                window.alert("Recipe ID is missing!");
+                window.location.href = "/frontend/pages/index.html";
+                return;
+            }
+
+            try {
+                let response = await fetch(`http://localhost:5050/api/recipes/${recipeId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if(response.ok) {
+                    //Display Image
+                    const recipeImg = document.createElement("img");
+                    recipeImg.src = data.imageUrl || '/frontend/content/steak.jpg';
+                    recipeImg.alt = data.title || 'Recipe Image';
+                    imgContainer.appendChild(recipeImg);
+
+                    //Display Title
+                    const recipeTitle = document.createElement("h1");
+                    recipeTitle.textContent = data.title || "Recipe Title";
+                    titleContainer.appendChild(recipeTitle);
+
+                    //Display Ingredients
+                    const uList = document.createElement("ul");
+                    data.ingredients.forEach( ingredient => {
+                        const recipeIngredients = document.createElement("li");
+                        recipeIngredients.textContent = ingredient.amount + ' ~ ' + ingredient.name;
+                        uList.appendChild(recipeIngredients);
+                    });
+                    ingredientsContainer.appendChild(uList);
+
+                    //Display Directions
+                    const oList = document.createElement("ol");
+                    data.instructions.forEach( direction => {
+                        const recipeDirections = document.createElement("li");
+                        recipeDirections.textContent = direction;
+                        oList.appendChild(recipeDirections);
+                    });
+                    instructionsContainer.appendChild(oList);
+        
+
+                } else {
+                    const errorText = await response.text();
+                    window.alert(`Failed to get the recipe: ${errorText}`);
+                }
+   
+            } catch (error) {
+                window.alert(`Something Happened While fetching data from the DB!!!. Error: ${error}`);
+                window.location.href = "/frontend/pages/index.html";
+
+            }
+        });
+    </script>
+    <script>
+        //EDIT BUTTON REDIRECT
+        let editButton = document.getElementById('edit-button');
+
+        // Get recipe ID from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('_id');
+
+        //Redirect to recipe-details.html after click on div
+        editButton.addEventListener('click', () => {
+            window.location.href = `../pages/edit-recipe.html?_id=${recipeId}`;
+        });
+
+        //DELETE A RECIPE Button
+        document.getElementById('delete-button').addEventListener('click', async () => {
+            let token = localStorage.getItem('token');
+
+            let userChoice = window.confirm("Are you sure you want to delete this recipe?");
+
+            if(userChoice){
+                // Get recipe ID from the URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const recipeId = urlParams.get('_id');
+
+                try {
+                    let response = await fetch(`http://localhost:5050/api/recipes/${recipeId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    let data = response.json();
+
+                    if(response.ok){
+                        window.alert("Recipe deleted :(");
+                        window.location.href = '/frontend/pages/index.html';
+                    } else {
+                        window.alert(`Failed to delete the recipe: ${data.message || 'Unknown error'}`);
+                    }
+
+                    } catch (error) {
+                    console.error('Error: ', error);
+                    window.alert("Something Happened while deleting the recipe TRY CATCH");
+                }      
+            }
+        });
+    </script>
+    <script src="/frontend/js/script.js"></script>
+</body>
+</html>
