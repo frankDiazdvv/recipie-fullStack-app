@@ -186,7 +186,34 @@ main {
     transition: all .1s ease;
 }
 
-/* CREATE RECIPE */
+/* Create Recipe Floating Button */
+.create-recipe-btn-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+}
+
+.create-recipe-btn-container .create-recipe-btn {
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 2.5rem;
+    font-weight: 400;
+}
+
+.create-recipe-btn:hover {
+    cursor: pointer;
+    border: 2px solid rgb(1, 109, 1);
+    background-color: rgb(212, 255, 212);
+    color: rgb(0, 92, 0);
+    transition: .1s all ease;
+}
+
+/* CREATE RECIPE PAGE */
 .create-recipe-main {
     display: grid;
     grid-template-rows: 15vh auto;
@@ -204,6 +231,7 @@ main h2 {
     display: flex;
     border-bottom: 1px solid rgb(213, 213, 213);
     width: 100vw;
+    font-weight: 600;
 }
 
 /* CREATE RECIPE FORM */
@@ -249,10 +277,12 @@ form input {
 
 .ingredient-container div {
     display: flex;
-    justify-content: space-between;
     width: 100%;
     gap: .5rem;
-    margin-bottom: .5rem;
+}
+
+.create-recipe-main input{
+    width: 100%;
 }
 
 .ingredient-amount {
@@ -315,13 +345,16 @@ main form .submit-button {
     font-weight: 600;
     width: 40%;
     height: 2.5rem;
-    background-color: rgba(68, 152, 68, 0.841);
+    background-color: green;
+    border: none;
     color: white;
     border-radius: 10px;
 }
 
 main form .submit-button:hover {
-    background-color: rgba(103, 161, 103, 0.841);
+    background-color: rgb(168, 222, 168);
+    border: 2px solid green;
+    color: rgb(0, 97, 0);
     cursor: pointer;
 }
 
@@ -431,7 +464,7 @@ main form .submit-button:hover {
 #recipe-details-main {
     display: grid;
     grid-template-columns: 40vw 1fr 10vw;
-    grid-template-rows: 20vh 40vh 40vh;
+    grid-template-rows: 15vh 45vh 40vh;
     grid-template-areas: 
         'photo title title'
         'photo ingredients ingredients'
@@ -447,9 +480,13 @@ main form .submit-button:hover {
 }
 
 #recipe-details-main .image-container img {
-    height: 80%;
-    border-radius: 100px;
+    height: 85%;
+    width: 80%;
+    min-height: 15rem;
+    min-width: 20rem;
+    border-radius: 5rem;
     box-shadow: 5px 5px 10px;
+    position: relative;
     object-fit: cover;
 }
 
@@ -463,8 +500,6 @@ main form .submit-button:hover {
 #recipe-details-main .ingredients-container {
     grid-area: ingredients;
     overflow: scroll;
-
-
 }
 
 #recipe-details-main .ingredients-container,
@@ -473,7 +508,14 @@ main form .submit-button:hover {
     margin-left: 5rem;
     max-height: 100%;
     margin-right: 2rem;
+}
 
+#edit-recipe-form {
+    margin-bottom: 1rem;
+}
+
+#edit-recipe-form .ingredient-container div {
+    margin-bottom: .5rem;
 }
 
 .ingredients-container ul{
@@ -508,8 +550,9 @@ main form .submit-button:hover {
 #recipe-details-main .edit-delete-container {
     grid-area: edit-delete;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
     gap: .5rem;
 }
 
@@ -517,11 +560,29 @@ main form .submit-button:hover {
     border: none;
     text-decoration: none;
     font-weight: 600;
+    font-size: 1rem;
     background-color: green;
     color: white;
     padding: .5rem;
     border-radius: 1rem;
+    height: 2.5rem;
+    width: 4.3rem;
+}
+
+#edit-button {
+    width: 3rem;
+}
+
+.edit-delete-container button:hover {
     cursor: pointer;
+    border: 2px solid rgb(1, 109, 1);
+    background-color: rgb(212, 255, 212);
+    color: rgb(0, 92, 0);
+    transition: .1s all ease;
+}
+
+#delete-button:hover {
+    background-color: rgb(255, 132, 132);
 }
 
 /* EDIT RECIPE PAGE */
@@ -573,8 +634,3 @@ main form .submit-button:hover {
 .delete-image-btn:hover {
     background-color: rgb(155, 4, 4);
 }
-
-
-
-
-

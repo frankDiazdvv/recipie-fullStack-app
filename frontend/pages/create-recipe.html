@@ -46,6 +46,13 @@
             let ingredTags = document.getElementById("ingredient-tags");
             let directionTags = document.getElementById("directions-tags"); // tags div
 
+            //Redirect if no token
+            const token = localStorage.getItem('token');
+            if(!token){
+                window.alert('Session Expired! Sign In to your account.');
+                window.location.href = '/frontend/pages/login.html';
+            }
+
             //ADD INGREDIENTS TAG
             document.getElementById("add-ingredient").addEventListener("click", (event) => {
                 event.preventDefault();

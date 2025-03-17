@@ -20,6 +20,9 @@
                 <p>Steak and Fries</p>
             </div> -->
         </div>
+        <div class="create-recipe-btn-container">
+            <button class="create-recipe-btn">+</button>
+        </div>
         
     </main>
     <script>
@@ -47,7 +50,7 @@
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    window.alert(`Failed to fetch recipes: ${errorText}`);
+                    console.log(`Failed to fetch recipes: ${errorText}`);
                 }
 
                 const recipes = await response.json();
@@ -89,7 +92,9 @@
                 window.location.href = '/frontend/pages/login.html';
             }
         });
-        
+        document.querySelector(".create-recipe-btn").addEventListener('click', () => {
+            window.location.href = '/frontend/pages/create-recipe.html';
+        });
     </script>
     <script src="/frontend/js/script.js"></script>
 </body>

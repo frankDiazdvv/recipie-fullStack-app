@@ -38,8 +38,8 @@
             <div class="img-container">
                 <label>Cover Image: </label><br>
                 <div class="button-section">
-                    <!-- <button class="update-image-btn" id="update-image-btn">Update Image</button> -->
-                    <input type="file" id="update-image-btn" class="update-image-btn" accept="image/*">
+                    <button class="custom-update-btn" id="custom-update-btn">Update Image</button>
+                    <input type="file" id="update-image-btn" class="update-image-btn" accept="image/*" hidden>
                     <!-- <button class="delete-image-btn" id="delete-image-btn">Delete Image</button> -->
                 </div>
               
@@ -87,8 +87,11 @@
                     recipe.instructions.forEach((direction, index) => {
                         addDirectionField(direction, index);
                     });
-            
-                    //Handle IMAGE
+
+
+                    //HANDLE IMAGE
+
+                    //Get img container and set img to stock or imgUrl
                     const editImageContainer = document.querySelector('.img-container');
                     const editRecipeImg = document.createElement('img')
                     editRecipeImg.classList.add('edit-image');
@@ -96,32 +99,66 @@
                     editRecipeImg.alt = recipe.title || 'No Image';
                     editImageContainer.appendChild(editRecipeImg);
 
-                    //GET UPDATED IMAGE
+                    //Set up delete button
+                    const buttonSection = document.querySelector('.button-section');
+                    let deleteImgBtn;
+
+                    //If imageUrl show delete button
+                    if(recipe.imageUrl){
+                        deleteImgBtn = createDeleteButton();
+                        buttonSection.appendChild(deleteImgBtn);                       
+                    }
+
+                    //Return delete button
+                    function createDeleteButton(){
+                        const btn = document.createElement('button');
+                        btn.classList.add('delete-image-btn');
+                        btn.innerText = 'Delete Image';
+                        btn.addEventListener('click', handleDeleteImage);
+                        return btn;
+                    }
+                    //Handles deletion
+                    function handleDeleteImage(event){
+                        event.preventDefault();
+                        if(window.confirm("Deleting Current Image?")){
+                            editRecipeImg.src = stockImage;  
+                            imageDeleted = true; //flag for deletion
+                            if(deleteImgBtn){
+                                deleteImgBtn.style.display = "none";//hide delete button
+                            }
+                            imageInput.value = ''; //clear file input
+                        } 
+                    }
+
+
+                    //Set up custom update button
+                    const customUpdateBtn = document.querySelector('.custom-update-btn');
                     const imageInput = document.getElementById('update-image-btn');
+
+                    customUpdateBtn.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        imageInput.click();
+                    });
+
+                    //Handling Updated Image
                     imageInput.addEventListener('change', (event) => {
                         const file = event.target.files[0];
                         if (file) {
                             editRecipeImg.src = URL.createObjectURL(file); //create temporary url to show image
+                            if(!deleteImgBtn){ //Create delete button if it does not exists
+                                deleteImgBtn = createDeleteButton();
+                                buttonSection.appendChild(deleteImgBtn);
+                            } else {
+                                deleteImgBtn.style.display = "block";//Show button if it exists
+                            }
+                        } else {
+                            if(!recipe.imageUrl){
+                                if(deleteImgBtn){
+                                    deleteImgBtn.style.display = "none";
+                                }
+                            }
                         }
-                    });
-
-                    if(recipe.imageUrl){
-                        const buttonSection = document.querySelector('.button-section');
-                        //Creating delete button
-                        const deleteImgBtn = document.createElement('button');
-                        deleteImgBtn.classList.add('delete-image-btn');
-                        deleteImgBtn.innerText = 'Delete Image';
-                        buttonSection.appendChild(deleteImgBtn);
-
-                        //Delete IMG button 
-                        document.querySelector('.delete-image-btn').addEventListener('click', (event) => {
-                            event.preventDefault();
-                            if(window.confirm("Deleting Current Image?")){
-                                editRecipeImg.src = stockImage;  
-                                imageDeleted = true; //flag for deletion
-                            }               
-                        });
-                    }
+                    });  
                 }
 
                 //Funtion to Add Ingredient div with a delete button
@@ -244,12 +281,8 @@
                 });
 
                 /*WORK ON THE FOLLOWING:
-                    - Show a preview of the image after a new image is selected for updating
-
+                    - Always redirect to sign in when no jwt
                 AFTER THAT FIX THESE:
-                    - Custom Upload Button(Last Grok convo)
-                    - Create-recipe page input layout is not showing properly
-                    - Fit Image in recipe details page properly
                     - Directions(in create and edit pages) cannot be added with enter
                 */
             }
