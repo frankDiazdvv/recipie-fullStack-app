@@ -4,8 +4,6 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
-const user = require('./models/user');
-
 
 dotenv.config();
 const app = express();
@@ -18,12 +16,6 @@ app.use(express.json()); //allows incomming JSON req.body to become a JS object.
 mongoose.connect(process.env.MONGO_URI).then(() => console.log("MongoDB connected!")).catch(
     err => console.error("Connection to MongoDB failed!", err)
 );
-
-//Test route
-app.get('/', (req,res) => {
-    res.status(200);
-    res.send('Backend Running...');
-});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/recipes', recipeRoutes);

@@ -48,11 +48,13 @@
         </form>
     </main>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', async (event) => {
+            event.preventDefault();
             const ingredientContainer = document.getElementById('ingredient-container');
             const directionsContainer = document.getElementById('directions-container');
             const addIngredientBtn = document.getElementById('add-edited-ingredient');
             const addDirectionBtn = document.getElementById('add-edited-direction');
+            const stockImage = '/frontend/content/no-image.png';
             let imageDeleted = false;
             
             //get recipe _id from url
@@ -85,34 +87,44 @@
                     recipe.instructions.forEach((direction, index) => {
                         addDirectionField(direction, index);
                     });
-
             
                     //Handle IMAGE
                     const editImageContainer = document.querySelector('.img-container');
                     const editRecipeImg = document.createElement('img')
                     editRecipeImg.classList.add('edit-image');
-                    editRecipeImg.src = recipe.imageUrl || '/frontend/content/no-image.png';
+                    editRecipeImg.src = recipe.imageUrl || stockImage;
                     editRecipeImg.alt = recipe.title || 'No Image';
                     editImageContainer.appendChild(editRecipeImg);
 
+                    //GET UPDATED IMAGE
+                    const imageInput = document.getElementById('update-image-btn');
+                    imageInput.addEventListener('change', (event) => {
+                        const file = event.target.files[0];
+                        if (file) {
+                            editRecipeImg.src = URL.createObjectURL(file); //create temporary url to show image
+                        }
+                    });
+
                     if(recipe.imageUrl){
                         const buttonSection = document.querySelector('.button-section');
+                        //Creating delete button
                         const deleteImgBtn = document.createElement('button');
                         deleteImgBtn.classList.add('delete-image-btn');
                         deleteImgBtn.innerText = 'Delete Image';
                         buttonSection.appendChild(deleteImgBtn);
-                    }
 
-                    //Delete IMG button 
-                    document.querySelector('.delete-image-btn').addEventListener('click', () => {
-                        if(window.confirm("Deleting Current Image?")){
-                            editRecipeImg.src = '/frontend/content/no-image.png';  
-                            imageDeleted = true; //flag for deletion
-                        }               
-                    });
+                        //Delete IMG button 
+                        document.querySelector('.delete-image-btn').addEventListener('click', (event) => {
+                            event.preventDefault();
+                            if(window.confirm("Deleting Current Image?")){
+                                editRecipeImg.src = stockImage;  
+                                imageDeleted = true; //flag for deletion
+                            }               
+                        });
+                    }
                 }
 
-                //Funtion to Add Ingredient div with delete button
+                //Funtion to Add Ingredient div with a delete button
                 function addIngredientField(amount = '', name = '', index = Date.now()){
                     const ingredDiv = document.createElement('div');
                     ingredDiv.classList.add('ingredients-input');
@@ -125,7 +137,7 @@
 
                     ingredDiv.querySelector('.remove-button').addEventListener('click', () => ingredDiv.remove());
                 }
-                //Funtion to Add Directions div with delete button
+                //Funtion to Add Directions div with a delete button
                 function addDirectionField(direction = '', index = Date.now()){
                     const directionDiv = document.createElement('div');
                     directionDiv.classList.add('instructions-input');
@@ -199,11 +211,11 @@
 
                     //formData for PUT
                     const formData = new FormData();
-                        formData.append('title', title);
-                        formData.append('ingredients', JSON.stringify(ingredients));
-                        formData.append('instructions', JSON.stringify(directions));
-                        if (updatedImage) formData.append('image', updatedImage);
-                        if (imageDeleted) formData.append('removeImage', 'true');
+                    formData.append('title', title);
+                    formData.append('ingredients', JSON.stringify(ingredients));
+                    formData.append('instructions', JSON.stringify(directions));
+                    if (updatedImage) formData.append('image', updatedImage);
+                    if (imageDeleted) formData.append('removeImage', 'true');
 
 
                     //SEND PUT REQUEST
@@ -232,18 +244,13 @@
                 });
 
                 /*WORK ON THE FOLLOWING:
-                    - Update works but does not when there is no image initially. 
-                    - Custom Upload Button(Last Grok convo)
-                    - Issue with form submitting     clicking delete button
-                    (I assume it is the positioning of the eventlistener(submit))
-                    maybe it needs to be moved to the left a tab.
                     - Show a preview of the image after a new image is selected for updating
 
                 AFTER THAT FIX THESE:
+                    - Custom Upload Button(Last Grok convo)
                     - Create-recipe page input layout is not showing properly
                     - Fit Image in recipe details page properly
                     - Directions(in create and edit pages) cannot be added with enter
-                    - Change stock no-image for index.html thumbnails and recipe-details 
                 */
             }
         });
